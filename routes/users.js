@@ -1,9 +1,34 @@
 const errors = require("restify-errors");
-const User = require("../models/User").default;
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const auth = require("../routes/auth");
 const jwt = require("jsonwebtoken");
 const config = require("../config");
+
+User.createMapping((err, mapping) => {
+  if (err) {
+    console.log("error creating mapping");
+    console.log(err);
+  } else {
+    console.log("mapping created");
+    console.log(mapping);
+  }
+});
+
+var stream = User.synchronize();
+var count = 0;
+
+stream.on("data", () => {
+  count++;
+});
+
+stream.on("close", () => {
+  console.log("Indexed " + count + " Documents");
+});
+
+stream.on("error", err => {
+  console.log(err);
+});
 
 module.exports = server => {
   // Register User
@@ -43,9 +68,8 @@ module.exports = server => {
       });
       const { iat, exp } = jwt.decode(token);
       // send response with token
-      res.send({ iat, exp, token});
+      res.send({ iat, exp, token });
       next();
-
     } catch (err) {
       //user unauth
       return next(new errors.NotAuthorizedError(err));

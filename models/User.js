@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const timestamp = require("mongoose-timestamp");
+const mongoosastic = require("mongoosastic");
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -12,7 +13,9 @@ const UserSchema = new mongoose.Schema({
     required: true
   }
 });
-
+UserSchema.plugin(mongoosastic, {
+  hosts: ["localhost:9201"]
+});
 UserSchema.plugin(timestamp);
 
 const User = mongoose.model("User", UserSchema);
